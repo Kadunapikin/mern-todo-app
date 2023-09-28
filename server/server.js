@@ -22,3 +22,19 @@ const TodoSchema = new mongoose.Schema({
   });
   
   const Todo = mongoose.model('Todo', TodoSchema);
+
+  // Routes
+app.get('/todos', async (req, res) => {
+    const todos = await Todo.find();
+    res.json(todos);
+  });
+  
+  app.post('/todos', async (req, res) => {
+    const newTodo = new Todo(req.body);
+    await newTodo.save();
+    res.json(newTodo);
+  });
+  
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
