@@ -30,14 +30,25 @@ const handleEdit = (id) => {
     .catch(err => console.log(err));
 }
 
-const handleDelete= (id) => {
-  axios.delete('http://localhost:3001/delete'+id).then(result => {window.location.reload()}).catch(err => console.log(err));
-}
+
+const handleDelete = (id) => {
+  axios
+    .delete(`http://localhost:3001/delete/${id}`)
+    .then(() => {
+      // Update the state by removing the deleted task
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo._id !== id));
+    })
+    .catch((err) => console.log(err));
+};
+
+const updateTodoList = (newTodo) => {
+  setTodos([...todos, newTodo]);
+};
 
 return (
     <div className='home'>
       <h2>Todo List</h2>
-      <Create />
+      <Create updateTodoList={updateTodoList} />
       {todos.length === 0 ? <div><h3>No Record of any todo task!</h3></div> :
         todos.map(todo => (
           <div className='task' key={todo._id}>
