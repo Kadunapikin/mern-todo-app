@@ -12,9 +12,6 @@ useEffect(() => {
   axios.get('http://localhost:3001/get').then(result => setTodos(result.data)).catch(err => console.log(err));
 }, [])
 
-// const handleEdit = (id) => {
-//   axios.put('http://localhost:3001/update'+id).then(result => {window.location.reload()}).catch(err => console.log(err));
-// }
 const handleEdit = (id) => {
   const updatedTodos = todos.map(todo => {
     if (todo._id === id) {
@@ -33,20 +30,10 @@ const handleEdit = (id) => {
     .catch(err => console.log(err));
 }
 
-// const handleDelete= (id) => {
-//   axios.delete('http://localhost:3001/delete'+id).then(result => {window.location.reload()}).catch(err => console.log(err));
-// }
-const handleDelete = (id) => {
-  axios.delete(`http://localhost:3001/delete/${id}`)
-    .then(result => {
-      // Remove the deleted todo from the state
-      const updatedTodos = todos.filter(todo => todo._id !== id);
-      setTodos(updatedTodos);
-    })
-    .catch(err => {
-      console.error("Error deleting todo:", err);
-    });
+const handleDelete= (id) => {
+  axios.delete('http://localhost:3001/delete'+id).then(result => {window.location.reload()}).catch(err => console.log(err));
 }
+
 return (
     <div className='home'>
       <h2>Todo List</h2>
