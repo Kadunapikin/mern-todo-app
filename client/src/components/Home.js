@@ -2,68 +2,137 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Create from './Create'
 import "./Home.css"
 
-
 const Home = () => {
-const [todos, setTodos] = useState([]);
-useEffect(() => {
-  axios.get('http://localhost:3001/get').then(result => setTodos(result.data)).catch(err => console.log(err));
-}, [])
+  const [task, setTask] = useState('');
+  const [todos, setTodos] = useState([]);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState({ users: [], todos: [] });
+  const [userInput, setUserInput] = useState('');
+  const [aiTodos, setAiTodos] = useState([]);
 
-const handleEdit = (id) => {
-  const updatedTodos = todos.map(todo => {
-    if (todo._id === id) {
-      // Toggle the 'done' property of the clicked todo
-      return { ...todo, done: !todo.done };
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  const fetchTodos = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/todos');
+      setTodos(response.data);
+    } catch (error) {
+      console.error('Error fetching todos:', error);
     }
-    return todo;
-  });
+  };
 
-  // Update the state with the modified todos
-  setTodos(updatedTodos);
+  const handleAdd = async () => {
+    if (!task.trim()) {
+      alert('Please enter a task!');
+      return;
+    }
 
-  // Send a request to update the todo in the server
-  axios.put(`http://localhost:3001/update/${id}`)
-    .then(result => console.log(result))
-    .catch(err => console.log(err));
-}
+    try {
+      const response = await axios.post('http://localhost:3001/todos', { task });
+      setTodos([...todos, response.data]);
+      setTask('');
+    } catch (error) {
+      console.error('Error adding todo:', error);
+    }
+  };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3001/todos/${id}`);
+      setTodos(todos.filter(todo => todo._id !== id));
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+    }
+  };
 
-const handleDelete = (id) => {
-  axios
-    .delete(`http://localhost:3001/delete/${id}`)
-    .then(() => {
-      // Update the state by removing the deleted task
-      setTodos((prevTodos) => prevTodos.filter((todo) => todo._id !== id));
-    })
-    .catch((err) => console.log(err));
-};
+  const register = async () => {
+    try {
+      await axios.post('http://localhost:3001/register', { username, password });
+      setUsername('');
+      setPassword('');
+      alert('Registered successfully!');
+    } catch (error) {
+      console.error('Error during registration:', error);
+    }
+  };
 
-const updateTodoList = (newTodo) => {
-  setTodos([...todos, newTodo]);
-};
+  // TODO: Implement login logic
 
-return (
+  const search = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3001/search?query=${searchQuery}`);
+      setSearchResults(response.data);
+    } catch (error) {
+      console.error('Error during search:', error);
+    }
+  };
+
+  //Open AI logic
+  const createTodoList = async () => {
+    try {
+      const response = await axios.post('http://localhost:3001/create-todo', { userInput });
+      setAiTodos(response.data.todos);
+    } catch (error) {
+      console.error('Error creating to-do list:', error);
+    }
+  };
+
+  return (
     <div className='home'>
-      <h2>Todo List</h2>
-      <Create updateTodoList={updateTodoList} />
-      {todos.length === 0 ? <div><h3>No Record of any todo task!</h3></div> :
-        todos.map(todo => (
-          <div className='task' key={todo._id}>
-            <div className='checkbox' onClick={() => handleEdit(todo._id)}>
-              <Checkbox checked={todo.done} className='icon' />
-              <p className={todo.done ? "line-through" : ""}>{todo.task}</p>
-            </div>
-            <div>
-              <span><DeleteIcon className='icon' onClick={() => handleDelete(todo._id)} /></span>
-            </div>
-          </div>
-        ))
-      }
+      <h1>Todo App</h1>
+      <input 
+        type="text" 
+        value={task} 
+        onChange={(e) => setTask(e.target.value)} 
+        placeholder="Write a task, tag users with @, create items with #" 
+      />
+      <button onClick={handleAdd}>Add</button>
+      <ul>
+        {todos.map(todo => (
+          <li className='task' key={todo._id}>
+            <Checkbox className='icon svg' />
+            <p className={todo.done ? "line-through" : ""}>{todo.task}</p>
+            <DeleteIcon onClick={() => handleDelete(todo._id)} className='icon' />
+          </li>
+        ))}
+      </ul>
+
+      <h2>Register</h2>
+      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+      <button onClick={register}>Register</button>
+
+      <h2>Search</h2>
+      <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by username or #" />
+      <button onClick={search}>Search</button>
+      <h3>Users:</h3>
+      <ul>
+        {searchResults.users.map(user => (
+          <li key={user._id}>{user.username}</li>
+        ))}
+      </ul>
+      <h3>Todos:</h3>
+      <ul>
+        {searchResults.todos.map(todo => (
+          <li key={todo._id}>{todo.task}</li>
+        ))}
+      </ul>
+
+      <textarea value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder="Describe the to-do list you want..."></textarea>
+      <button onClick={createTodoList}>Create To-Do List</button>
+      <ul>
+        {aiTodos.map((todo, index) => (
+          <li key={index}>{todo}</li>
+        ))}
+      </ul>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
