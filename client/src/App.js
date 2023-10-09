@@ -7,7 +7,9 @@ function App() {
   return (
     <div className="App">
       <DarkModeToggle />
-      <Home />
+      <div className='container'>
+        <Home />
+      </div>
     </div>
   );
 }

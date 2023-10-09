@@ -14,6 +14,7 @@ const Home = () => {
   const [userInput, setUserInput] = useState('');
   const [aiTodos, setAiTodos] = useState([]);
 
+
   useEffect(() => {
     fetchTodos();
   }, []);
@@ -29,18 +30,23 @@ const Home = () => {
 
   const handleAdd = async () => {
     if (!task.trim()) {
-      alert('Please enter a task!');
-      return;
+        alert('Please enter a task!');
+        return;
     }
 
     try {
-      const response = await axios.post('http://localhost:3001/todos', { task });
-      setTodos([...todos, response.data]);
-      setTask('');
+        const response = await axios.post('http://localhost:3001/todos', { task });
+        if (response.data.message) {  // Check for an error message in the response
+            alert(response.data.message);
+        } else {
+            setTodos([...todos, response.data]);
+            setTask('');
+        }
     } catch (error) {
-      console.error('Error adding todo:', error);
+        console.error('Error adding todo:', error);
+        alert('An unresgistered username detected. Please use a registered username.'); // Generic error for unexpected issues
     }
-  };
+};
 
   const handleDelete = async (id) => {
     try {
@@ -53,25 +59,37 @@ const Home = () => {
 
   const register = async () => {
     try {
-      await axios.post('http://localhost:3001/register', { username, password });
-      setUsername('');
-      setPassword('');
-      alert('Registered successfully!');
+        const response = await axios.post('http://localhost:3001/register', { username, password });
+        if (response.data && response.data.message) {
+            alert(response.data.message);
+            if(response.data.message === 'User registered successfully!') {
+                setUsername('');
+                setPassword('');
+            }
+        }
     } catch (error) {
-      console.error('Error during registration:', error);
+        if(error.response && error.response.data && error.response.data.message) {
+            alert(error.response.data.message); // Here is where you catch the "Username already taken" error
+        } else {
+            console.error('Error during registration:', error);
+        }
     }
-  };
-
+};
+  
   // TODO: Implement login logic
-
   const search = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3001/search?query=${searchQuery}`);
-      setSearchResults(response.data);
-    } catch (error) {
-      console.error('Error during search:', error);
+    if (!searchQuery.trim()) {
+        alert('Please enter a search term!');
+        return;
     }
-  };
+    try {
+        const response = await axios.get(`http://localhost:3001/search?query=${searchQuery}`);
+        setSearchResults(response.data);
+    } catch (error) {
+        console.error('Error during search:', error);
+    }
+};
+
 
   //Open AI logic
   const createTodoList = async () => {
@@ -82,6 +100,7 @@ const Home = () => {
       console.error('Error creating to-do list:', error);
     }
   };
+  
 
   return (
     <div className='home'>
@@ -94,13 +113,27 @@ const Home = () => {
       />
       <button onClick={handleAdd}>Add</button>
       <ul>
-        {todos.map(todo => (
+      {todos.map(todo => {
+        const taskWords = todo.task.split(/\s+/).map((word, index) => {
+        if (word.startsWith('@')) {
+            return <span className="mention" key={index}>{word}</span>;
+        } else if (word.startsWith('#')) {
+            return <span className="hashtag" key={index}>{word}</span>;
+        } else {
+            return word + ' ';  // Add a space to keep words separated
+        }
+        });
+
+        return (
           <li className='task' key={todo._id}>
-            <Checkbox className='icon svg' />
-            <p className={todo.done ? "line-through" : ""}>{todo.task}</p>
-            <DeleteIcon onClick={() => handleDelete(todo._id)} className='icon' />
+          <Checkbox className='icon svg checkbox' />
+          <p className={todo.done ? "line-through" : ""}>
+          {taskWords}
+          </p>
+          <DeleteIcon onClick={() => handleDelete(todo._id)} className='icon' />
           </li>
-        ))}
+        );
+      })}
       </ul>
 
       <h2>Register</h2>
@@ -136,3 +169,4 @@ const Home = () => {
 }
 
 export default Home;
+
