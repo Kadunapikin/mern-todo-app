@@ -1,0 +1,137 @@
+ .App {
+  text-align: center;
+}
+
+/* Common styles for both light and dark modes */
+body {
+  font-family: Arial, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light mode styles */
+:root {
+  --background-color: #ffffff;
+  --text-color: #000000;
+}
+
+/* Dark mode styles */
+.dark-mode {
+  --background-color: #121212;
+  --text-color: #ffffff;
+}
+
+/* Apply styles based on mode */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+} 
+
+/* Base styles to make things look nice */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.container {
+  max-width: 600px;
+  margin: 50px auto;
+  background-color: #f7f9fb;
+  border-radius: 8px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+h1, h2, h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: black;
+}
+
+input, button, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+button {
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+}
+
+.line-through {
+  text-decoration: line-through;
+  color: #a5a5a5; 
+}
+
+.icon {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.icon:hover {
+  color: red;
+}
+
+.checkbox {
+  cursor: pointer;
+}
+
+.checkbox {
+  cursor: pointer;
+  color: #007BFF;
+}
+
+.mention {
+  color: #3498db; /* blue */
+  font-weight: bold;
+  cursor: pointer; /* indicate that it's clickable, if you decide to add click functionality */
+}
+
+.hashtag {
+  color: #2ecc71; /* green */
+  font-weight: bold;
+  cursor: pointer; /* indicate that it's clickable, if you decide to add click functionality */
+}
+
+/* Optional: Add hover effect */
+.mention:hover, .hashtag:hover {
+  text-decoration: underline;
+}
+
+
+/* Responsive design: Adjust styles for smaller screens */
+@media (max-width: 650px) {
+  .container {
+      margin: 20px 10px;
+  }
+}
+
